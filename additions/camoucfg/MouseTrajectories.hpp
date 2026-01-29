@@ -56,11 +56,14 @@ class BezierCalculator {
 
 class HumanizeMouseTrajectory {
  public:
-  HumanizeMouseTrajectory(const std::pair<double, double>& fromPoint,
-                          const std::pair<double, double>& toPoint)
-      : fromPoint(fromPoint), toPoint(toPoint) {
-    generateCurve();
-  }
+   HumanizeMouseTrajectory(
+     const std::pair<double, double>& fromPoint,
+     const std::pair<double, double>& toPoint)
+     : fromPoint(fromPoint),
+       toPoint(applyTargetJitter(toPoint)) {
+     generateCurve();
+   }
+
 
   std::vector<int> getPoints() const {
     std::vector<int> flatPoints;
@@ -75,6 +78,26 @@ class HumanizeMouseTrajectory {
   }
 
  private:
+  std::pair<double, double> applyTargetJitter(
+      const std::pair<double, double>& target) {
+  
+    // config’den okunabilir yapıyoruz
+    double jitterRatio = 0.13; // %15 default
+    if (auto cfg = MaskConfig::GetDouble("humanize:targetJitter")) {
+      jitterRatio = std::clamp(cfg.value(), 0.02, 0.4);
+    }
+  
+    // SABİT değil, ama küçük bir sapma
+    std::normal_distribution<double> dist(0.0, jitterRatio);
+  
+    double dx = dist(randomEngine);
+    double dy = dist(randomEngine);
+  
+    return {
+        target.first * (1.0 + dx),
+        target.second * (1.0 + dy)
+    };
+  }
   std::pair<double, double> fromPoint;
   std::pair<double, double> toPoint;
   std::vector<std::vector<double>> points;
