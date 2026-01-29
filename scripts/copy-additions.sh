@@ -23,6 +23,11 @@ run() {
     fi
 }
 
+run 'mkdir -p services/settings/dumps/main'
+run 'mkdir -p build/vs'
+run 'mkdir -p browser/components'
+run 'mkdir -p toolkit/mozapps/extensions'
+
 # Copy the search-config.json file
 run 'mkdir -p services/settings/dumps/main'
 run 'cp -v ../assets/search-config.json services/settings/dumps/main/search-config.json'
